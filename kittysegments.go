@@ -1,54 +1,45 @@
 package incubator
 
 import (
-	"image"
-	"os"
 	"errors"
 	"fmt"
-	"image/png"
+	"image"
 	"image/draw"
+	"image/png"
+	"os"
 )
 
 const (
 	ImageMaxSize = 1200
 )
 
+var PartsOrder = [...]PartName{
+	PartTail,
+	PartBody,
+	PartEars,
+	PartHead,
+	PartEyes,
+	PartBrows,
+	PartNose,
+	PartCap,
+}
+
 type KittySegments struct {
 	imagesDir string
-	config *KittyConfig
-	layers []image.Image
+	config    *KittyConfig
+	layers    []image.Image
 }
 
 func NewKittySegments(imagesDir string, config *KittyConfig) (*KittySegments, error) {
 	ks := &KittySegments{
 		imagesDir: imagesDir,
-		config:   config,
+		config:    config,
 	}
-	if e := ks.getImage(PartTail); e != nil {
-		return nil, e
+	for _, p := range PartsOrder {
+		if e := ks.addLayer(p); e != nil {
+			return nil, e
+		}
 	}
-	if e := ks.getImage(PartBody); e != nil {
-		return nil, e
-	}
-	if e := ks.getImage(PartEars); e != nil {
-		return nil, e
-	}
-	if e := ks.getImage(PartHead); e != nil {
-		return nil, e
-	}
-	if e := ks.getImage(PartEyes); e != nil {
-		return nil, e
-	}
-	if e := ks.getImage(PartBrows); e != nil && !config.HasBrows {
-		return nil, e
-	}
-	if e := ks.getImage(PartNose); e != nil {
-		return nil, e
-	}
-	if e := ks.getImage(PartCap); e != nil && !config.HasCap {
-		return nil, e
-	}
-
 	return ks, nil
 }
 
@@ -74,8 +65,11 @@ func (ks *KittySegments) CompileToFile(name string) error {
 	return png.Encode(f, img)
 }
 
-func (ks *KittySegments) getImage(part PartName) error {
-	path := ks.config.ImagePath(ks.imagesDir, part)
+func (ks *KittySegments) addLayer(part PartName) error {
+	path, ok := ks.config.ImagePath(ks.imagesDir, part)
+	if !ok {
+		return nil
+	}
 	f, e := os.Open(path)
 	if e != nil {
 		return errors.New(fmt.Sprintf("failed to open file for kitty part: %v", e))

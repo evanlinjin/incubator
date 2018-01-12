@@ -1,9 +1,9 @@
 package main
 
 import (
-	"os"
-	"github.com/kittycash/incubator"
 	"fmt"
+	"github.com/kittycash/incubator"
+	"os"
 )
 
 func main() {
@@ -11,17 +11,15 @@ func main() {
 	out := os.Args[2]
 
 	config := &incubator.KittyConfig{
-		KittyID:  "2",
-		HasBrows: true,
-		HasCap:   true,
-		BodyID:   "02",
-		BrowsID:  "00",
-		CapID:    "00",
-		EarsID:   "01",
-		EyesID:   "04",
-		HeadID:   "01",
-		NoseID:   "00",
-		TailID:   "01",
+		KittyID:  4,
+		BodyID:   2,
+		BrowsID:  -1,
+		CapID:    -1,
+		EarsID:   1,
+		EyesID:   1,
+		HeadID:   0,
+		NoseID:   1,
+		TailID:   2,
 	}
 
 	segments, e := incubator.NewKittySegments(in, config)
