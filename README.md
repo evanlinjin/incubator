@@ -1,2 +1,2 @@
-# incubator
+# Incubator
 Kitties are spawned here.
