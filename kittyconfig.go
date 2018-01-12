@@ -48,7 +48,7 @@ type KittyConfig struct {
 	TailID  string `json:"tail_id"`
 }
 
-func (kc *KittyConfig) ImagePath(partName PartName) string {
+func (kc *KittyConfig) ImagePath(rootPath string, partName PartName) string {
 	var partID string
 	switch partName {
 	case PartBody:
@@ -69,6 +69,7 @@ func (kc *KittyConfig) ImagePath(partName PartName) string {
 		partID = kc.TailID
 	}
 	return filepath.Join(
+		rootPath,
 		fmt.Sprintf("Kitty_%s", kc.KittyID),
 		string(partName),
 		fmt.Sprintf("%s_%s.png", partName.Secondary(), partID),
