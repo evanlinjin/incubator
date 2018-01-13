@@ -20,6 +20,17 @@ const (
 	PartTail  PartName = "tail"
 )
 
+var PartsOrder = [...]PartName{
+	PartTail,
+	PartBody,
+	PartEars,
+	PartHead,
+	PartEyes,
+	PartBrows,
+	PartNose,
+	PartCap,
+}
+
 type KittyConfig struct {
 	KittyID  uint64 `json:"kitty_id"`
 	Version  uint64 `json:"version"`
@@ -74,8 +85,7 @@ func (kc *KittyConfig) ImagePath(rootPath string, partName PartName) (string, bo
 func RandomKittyConfig(r *rand.Rand, rootPath string) (*KittyConfig, error) {
 	kc := new(KittyConfig)
 
-	// PICK A RANDOM KITTY
-	kitties, e := filepath.Glob(path.Join(rootPath, "Kitty_[0-9]*"))
+	kitties, e := filepath.Glob(path.Join(rootPath, "Kitty_*"))
 	if e != nil {
 		return nil, e
 	}
@@ -86,7 +96,7 @@ func RandomKittyConfig(r *rand.Rand, rootPath string) (*KittyConfig, error) {
 		fmt.Sprintf("Kitty_%d", kc.KittyID),
 	)
 	for _, part := range PartsOrder {
-		list, _ := filepath.Glob(path.Join(kittyPath, string(part), "[0-9]*.png"))
+		list, _ := filepath.Glob(path.Join(kittyPath, string(part), "*.png"))
 		if pID := kc.getPartIDPointer(part); pID != nil {
 			if len(list) == 0 {
 				*pID = -1

@@ -10,19 +10,9 @@ import (
 )
 
 const (
-	ImageMaxSize = 1200
+	ImageMin = 0
+	ImageMax = 1200
 )
-
-var PartsOrder = [...]PartName{
-	PartTail,
-	PartBody,
-	PartEars,
-	PartHead,
-	PartEyes,
-	PartBrows,
-	PartNose,
-	PartCap,
-}
 
 type KittySegments struct {
 	imagesDir string
@@ -44,7 +34,7 @@ func NewKittySegments(imagesDir string, config *KittyConfig) (*KittySegments, er
 }
 
 func (ks *KittySegments) Compile() (image.Image, error) {
-	out := image.NewRGBA(image.Rect(0, 0, ImageMaxSize, ImageMaxSize))
+	out := image.NewRGBA(image.Rect(ImageMin, ImageMin, ImageMax, ImageMax))
 
 	for _, img := range ks.layers {
 		draw.Draw(out, out.Bounds(), img, img.Bounds().Min, draw.Over)
@@ -78,7 +68,7 @@ func (ks *KittySegments) addLayer(part PartName) error {
 	if e != nil {
 		return errors.New(fmt.Sprintf("failed to decode image for kitty part: %v", e))
 	}
-	if size := img.Bounds().Size(); size.X != ImageMaxSize || size.Y != ImageMaxSize {
+	if size := img.Bounds().Size(); size.X != ImageMax || size.Y != ImageMax {
 		return errors.New(fmt.Sprintf("kitty part image has invalid dimensions: %s", path))
 	}
 	ks.layers = append(ks.layers, img)
