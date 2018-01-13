@@ -3,6 +3,8 @@ package incubator
 import (
 	"fmt"
 	"path/filepath"
+	"math/rand"
+	"path"
 )
 
 type PartName string
@@ -33,34 +35,66 @@ type KittyConfig struct {
 	TailID   int64 `json:"tail_id"`
 }
 
-func (kc *KittyConfig) ImagePath(rootPath string, partName PartName) (string, bool) {
-	var partID int64
-	switch partName {
+func (kc *KittyConfig) getPartIDPointer(name PartName) *int64 {
+	var p *int64
+	switch name {
 	case PartBody:
-		partID = kc.BodyID
+		p = &kc.BodyID
 	case PartBrows:
-		partID = kc.BrowsID
+		p = &kc.BrowsID
 	case PartCap:
-		partID = kc.CapID
+		p = &kc.CapID
 	case PartEars:
-		partID = kc.EarsID
+		p = &kc.EarsID
 	case PartEyes:
-		partID = kc.EyesID
+		p = &kc.EyesID
 	case PartHead:
-		partID = kc.HeadID
+		p = &kc.HeadID
 	case PartNose:
-		partID = kc.NoseID
+		p = &kc.NoseID
 	case PartTail:
-		partID = kc.TailID
+		p = &kc.TailID
 	}
-	if partID < 0 {
+	return p
+}
+
+func (kc *KittyConfig) ImagePath(rootPath string, partName PartName) (string, bool) {
+	if partID := kc.getPartIDPointer(partName); partID == nil || *partID < 0  {
 		return "", false
 	} else {
 		return filepath.Join(
 			rootPath,
 			fmt.Sprintf("Kitty_%d", kc.KittyID),
 			string(partName),
-			fmt.Sprintf("%d.png", partID),
+			fmt.Sprintf("%d.png", *partID),
 		), true
 	}
+}
+
+func RandomKittyConfig(r *rand.Rand, rootPath string) (*KittyConfig, error) {
+	kc := new(KittyConfig)
+
+	// PICK A RANDOM KITTY
+	kitties, e := filepath.Glob(path.Join(rootPath, "Kitty_[0-9]*"))
+	if e != nil {
+		return nil, e
+	}
+	kc.KittyID = r.Uint64()%uint64(len(kitties))
+
+	var kittyPath = filepath.Join(
+		rootPath,
+		fmt.Sprintf("Kitty_%d", kc.KittyID),
+	)
+	for _, part := range PartsOrder {
+		list, _ := filepath.Glob(path.Join(kittyPath, string(part), "[0-9]*.png"))
+		if pID := kc.getPartIDPointer(part); pID != nil {
+			if len(list) == 0 {
+				*pID = -1
+			} else {
+				*pID = r.Int63()%int64(len(list))
+			}
+		}
+	}
+
+	return kc, nil
 }
