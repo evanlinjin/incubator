@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/kittycash/incubator"
-	"os"
 	"math/rand"
+	"os"
 	"time"
 )
 

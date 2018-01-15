@@ -25,12 +25,9 @@ func NewKittySegments(imagesDir string, config *KittyConfig) (*KittySegments, er
 		imagesDir: imagesDir,
 		config:    config,
 	}
-	for _, p := range PartsOrder {
-		if e := ks.addLayer(p); e != nil {
-			return nil, e
-		}
-	}
-	return ks, nil
+	return ks, RangeKittyParts(func(part KittyPart) error {
+		return ks.addLayer(part)
+	})
 }
 
 func (ks *KittySegments) Compile() (image.Image, error) {
@@ -55,7 +52,7 @@ func (ks *KittySegments) CompileToFile(name string) error {
 	return png.Encode(f, img)
 }
 
-func (ks *KittySegments) addLayer(part PartName) error {
+func (ks *KittySegments) addLayer(part KittyPart) error {
 	path, ok := ks.config.ImagePath(ks.imagesDir, part)
 	if !ok {
 		return nil
