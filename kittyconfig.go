@@ -6,6 +6,7 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"encoding/json"
 )
 
 type KittyConfig struct {
@@ -47,6 +48,16 @@ func (kc *KittyConfig) ImagePath(rootPath string, part KittyPart) (string, bool)
 	}
 }
 
+func (kc *KittyConfig) Print(pretty bool) string {
+	var data []byte
+	if pretty {
+		data, _ = json.MarshalIndent(kc, "", "  ")
+	} else {
+		data, _ = json.Marshal(kc)
+	}
+	return string(data)
+}
+
 func RandomKittyConfig(r *rand.Rand, rootPath string) (*KittyConfig, error) {
 	kc := new(KittyConfig)
 
@@ -66,7 +77,7 @@ func RandomKittyConfig(r *rand.Rand, rootPath string) (*KittyConfig, error) {
 		list, _ := filepath.Glob(path.Join(kittyPath, partSpecs.FolderName(), "*.png"))
 
 		if pID := kc.getPartIDPointer(partSpecs); pID != nil {
-			if len(list) == 0 {
+			if len(list) == 0 || partSpecs.Excludable() && r.Int()%2 == 0 {
 				*pID = -1
 			} else {
 				*pID = r.Int63() % int64(len(list))

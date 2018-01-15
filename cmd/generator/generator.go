@@ -17,6 +17,7 @@ func main() {
 	if e != nil {
 		panic(e)
 	}
+	fmt.Println(config.Print(true))
 
 	segments, e := incubator.NewKittySegments(in, config)
 	if e != nil {
