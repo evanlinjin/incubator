@@ -6,10 +6,11 @@ import (
 	"math/rand"
 	"os"
 	"time"
+	"github.com/skycoin/skycoin/src/util/file"
 )
 
 func main() {
-	in, out := os.Args[1], os.Args[2]
+	in := os.Args[1]
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
@@ -17,14 +18,20 @@ func main() {
 	if e != nil {
 		panic(e)
 	}
-	fmt.Println(config.Print(true))
+	fmt.Println("[CONFIG]", config.Print(true))
 
 	segments, e := incubator.NewKittySegments(in, config)
 	if e != nil {
 		panic(e)
 	}
 
-	if e := segments.CompileToFile(out); e != nil {
+	configHashStr := config.Hash().Hex()
+	fmt.Println("[HASH]", configHashStr)
+
+	if e := segments.CompileToFile(configHashStr+".png"); e != nil {
+		panic(e)
+	}
+	if e := file.SaveJSONSafe(configHashStr+".json", config, os.FileMode(0666)); e != nil {
 		panic(e)
 	}
 

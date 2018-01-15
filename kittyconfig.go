@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"encoding/json"
+	"github.com/skycoin/skycoin/src/cipher"
 )
 
 type KittyConfig struct {
@@ -46,6 +47,11 @@ func (kc *KittyConfig) ImagePath(rootPath string, part KittyPart) (string, bool)
 			fmt.Sprintf("%d.png", *partID),
 		), true
 	}
+}
+
+func (kc *KittyConfig) Hash() cipher.SHA256 {
+	data, _ := json.Marshal(kc)
+	return cipher.SumSHA256(data)
 }
 
 func (kc *KittyConfig) Print(pretty bool) string {
